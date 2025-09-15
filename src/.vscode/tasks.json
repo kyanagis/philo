@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-debug",
+            "type": "shell",
+            "command": "cc -g -O0 -fno-omit-frame-pointer -fsanitize=address -Wall -Wextra -pthread main.c",
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "rm -rf a.out"
+        }
+    ]
+}
