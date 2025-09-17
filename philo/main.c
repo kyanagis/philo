@@ -1,18 +1,10 @@
+#include "philo.h"
 #include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-typedef struct s_config
-{
-	int philo_count;       // 哲学者
-	int die_timeout_ms;    // 食べ始められないと死ぬまでの猶予(
-	int eat_duration_ms;   // 食事にかける時間
-	int sleep_duration_ms; // 睡眠にかける時間
-	int meals_required;    // 全員が食べるべき回数
-}			t_config;
 
 static bool	ft_isdigit(int c)
 {
@@ -49,7 +41,9 @@ static bool	parse_pos_int(const char *s, int *out_value)
 bool	parse_config(int argc, char **argv, t_config *config)
 {
 	if (!(argc == 5 || argc == 6))
+	{
 		return (false);
+	}
 	if (!parse_pos_int(argv[1], &config->philo_count))
 		return (false);
 	if (!parse_pos_int(argv[2], &config->die_timeout_ms))
@@ -80,14 +74,29 @@ static bool	valdate_config(const t_config *config)
 	return (true);
 }
 
+int	ft_strlen(const char *s)
+{
+	const char	*start = s;
+
+	while (*s)
+		++s;
+	return ((int)(s - start));
+}
+
+static int	put_err_msg(const char *msg)
+{
+	write(STDERR_FILENO, msg, ft_strlen(msg));
+	return (EXIT_FAILURE);
+}
+
 int	main(int argc, char **argv)
 {
 	t_config	config;
 
 	if (!parse_config(argc, argv, &config))
-		return (EXIT_FAILURE);
+		return (put_err_msg(ERR_USAGE));
 	if (!valdate_config(&config))
-		return (EXIT_FAILURE);
+		return (put_err_msg(ERR_INIT));
 	printf("%d\n%d\n%d\n%d\n%d\n", config.philo_count, config.die_timeout_ms,
 		config.eat_duration_ms, config.sleep_duration_ms,
 		config.meals_required);
