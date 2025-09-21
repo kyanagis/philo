@@ -1,87 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kyanagis <kyanagis@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/21 16:52:45 by kyanagis          #+#    #+#             */
+/*   Updated: 2025/09/21 17:58:49 by kyanagis         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
-#include <limits.h>
-#include <pthread.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-static bool	ft_isdigit(int c)
-{
-	return (c >= '0' && c <= '9');
-}
-static bool	parse_pos_int(const char *s, int *out_value)
-{
-	long		value;
-	const char	*cursor;
-
-	if (!s || !*s)
-		return (false);
-	cursor = s;
-	while (*cursor == ' ' || (*cursor >= 9 && *cursor <= 13))
-		++cursor;
-	if (*cursor == '+')
-		++cursor;
-	if (!ft_isdigit(*cursor))
-		return (false);
-	value = 0;
-	while (ft_isdigit(*cursor))
-	{
-		if (value > (INT_MAX - (*cursor - '0')) / 10)
-			return (false);
-		value = value * 10 + (*cursor - '0');
-		++cursor;
-	}
-	if (*cursor != '\0' || value < 1)
-		return (false);
-	*out_value = (int)value;
-	return (true);
-}
-
-bool	parse_config(int argc, char **argv, t_config *config)
-{
-	if (!(argc == 5 || argc == 6))
-	{
-		return (false);
-	}
-	if (!parse_pos_int(argv[1], &config->philo_count))
-		return (false);
-	if (!parse_pos_int(argv[2], &config->die_timeout_ms))
-		return (false);
-	if (!parse_pos_int(argv[3], &config->eat_duration_ms))
-		return (false);
-	if (!parse_pos_int(argv[4], &config->sleep_duration_ms))
-		return (false);
-	if (argc == 6)
-	{
-		if (!parse_pos_int(argv[5], &config->meals_required))
-			return (false);
-	}
-	else
-		config->meals_required = -1;
-	return (true);
-}
-
-static bool	valdate_config(const t_config *config)
-{
-	if (config->philo_count < 1)
-		return (false);
-	if (config->die_timeout_ms < 1 || config->eat_duration_ms < 1
-		|| config->sleep_duration_ms < 1)
-		return (false);
-	if (!(config->meals_required == -1 || config->meals_required >= 1))
-		return (false);
-	return (true);
-}
-
-int	ft_strlen(const char *s)
-{
-	const char	*start = s;
-
-	while (*s)
-		++s;
-	return ((int)(s - start));
-}
 
 static int	put_err_msg(const char *msg)
 {
@@ -89,16 +18,72 @@ static int	put_err_msg(const char *msg)
 	return (EXIT_FAILURE);
 }
 
+static void	shared_destroy(t_shared *box)
+{
+	pthread_mutex_destroy(&box->state_mutex);
+	pthread_mutex_destroy(&box->print_mutex);
+}
+
+static void	forks_destroy(t_fork *forks, int count)
+{
+	int	i;
+
+	if (!forks)
+		return ;
+	i = 0;
+	while (i < count)
+	{
+		pthread_mutex_destroy(&forks[i].mtx);
+		++i;
+	}
+	free(forks);
+}
+
+static int	fail_cleanup_and_exit(t_fork *forks, t_shared *box, int count,
+		int flag)
+{
+	if (flag >= 2)
+		shared_destroy(box);
+	if (flag >= 1)
+		forks_destroy(forks, count);
+	return (put_err_msg(ERR_INIT));
+}
+
+static int	philos_destroy(t_philo **philo, t_fork *forks, t_shared *box,
+		int count)
+{
+	int	i;
+
+	i = 0;
+	while (i < count)
+	{
+		pthread_mutex_destroy(&philo[i]->meal_mutex);
+		++i;
+	}
+	return (fail_cleanup_and_exit(forks, box, count, 2));
+}
+
 int	main(int argc, char **argv)
 {
 	t_config	config;
+	t_philo		*philo;
+	t_fork		*forks;
+	t_shared	box;
 
+	philo = NULL;
 	if (!parse_config(argc, argv, &config))
 		return (put_err_msg(ERR_USAGE));
-	if (!valdate_config(&config))
+	if (!validate_config(&config))
 		return (put_err_msg(ERR_INIT));
-	printf("%d\n%d\n%d\n%d\n%d\n", config.philo_count, config.die_timeout_ms,
-		config.eat_duration_ms, config.sleep_duration_ms,
-		config.meals_required);
+	if (!forks_init(&forks, config.philo_count))
+		return (put_err_msg(ERR_INIT));
+	if (!shared_init(&box, &config))
+		return (fail_cleanup_and_exit(forks, &box, config.philo_count, 1));
+	box.start_ms = now_ms() + 50;
+	if (!philos_init(&philo, &box, forks))
+		return (fail_cleanup_and_exit(forks, &box, config.philo_count, 2));
+	if (!philos_start(philo, &box))
+		return (philos_destroy(&philo, forks, &box, config.philo_count));
+	printf("%lld\n", box.start_ms);
 	return (EXIT_SUCCESS);
 }

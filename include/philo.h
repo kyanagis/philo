@@ -1,9 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kyanagis <kyanagis@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/21 16:53:32 by kyanagis          #+#    #+#             */
+/*   Updated: 2025/09/21 18:00:46 by kyanagis         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
+# include <limits.h>
 # include <pthread.h>
 # include <stdbool.h>
+# include <stdio.h>
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
@@ -11,13 +24,14 @@
 # define ERR_USAGE "Usage:./philo n_philo t_die t_eat t_sleep [must_eat]\n"
 # define ERR_INIT "Error: init\n"
 # define ERR_START "Error: start\n"
+
 typedef struct s_config
 {
-	int philo_count;       // 哲学者
-	int die_timeout_ms;    // 食べ始められないと死ぬ
-	int eat_duration_ms;   // 食事にかける時間
-	int sleep_duration_ms; // 睡眠にかける時間
-	int meals_required;    // 全員が食べるべき回数
+	int				philo_count;
+	int				die_timeout_ms;
+	int				eat_duration_ms;
+	int				sleep_duration_ms;
+	int				meals_required;
 }					t_config;
 
 typedef struct s_fork
@@ -25,43 +39,42 @@ typedef struct s_fork
 	pthread_mutex_t	mtx;
 }					t_fork;
 
-struct s_shared;
+typedef struct s_shared
+{
+	t_config		config;
+	long long		start_ms;
+	int				stop;
+	int				full_count;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	state_mutex;
+
+}					t_shared;
 
 typedef struct s_philo
 {
 	int				id;
+	t_shared		*shared;
 	t_fork			*left;
 	t_fork			*right;
-	int				meals_eaten;
+	pthread_mutex_t	meal_mutex;
 	long long		last_meal_ms;
-	pthread_t		thread;
-	struct s_shared	*shared;
+	int				meals_done;
+	int				first_left;
 }					t_philo;
 
-typedef struct s_shared
-{
-	t_config		conf;
-	long long		start_ms;
-	int				stop;
-	pthread_mutex_t	stop_mtx;
-	pthread_mutex_t	print_mtx;
-	t_fork			*forks;
-	t_philo			*philos;
-	pthread_t		monitor_thread;
-}					t_shared;
+bool				parse_config(int argc, char **argv, t_config *config);
+bool				validate_config(const t_config *config);
+bool				shared_init(t_shared *box, const t_config *config);
+bool				forks_init(t_fork **out, int count);
 
-bool				parse_config(int argc, char **argv, t_config *conf);
-
+bool				philos_init(t_philo **out, t_shared *box, t_fork *forks);
+bool				safe_mutex_init(pthread_mutex_t *mutex, int index);
+bool				parse_pos_int(const char *s, int *out_value);
 long long			now_ms(void);
-void				sleep_ms_precise(t_shared *sh, int ms);
 
-void				print_state(t_shared *sh, int id, const char *msg);
-void				print_death(t_shared *sh, int id);
+bool				philos_start(t_philo *philo, t_shared *box);
 
-bool				init_shared(t_shared *sh, const t_config *conf);
-void				destroy_shared(t_shared *sh);
-
-bool				sim_start(t_shared *sh);
-void				sim_join(t_shared *sh);
+bool				ft_isdigit(int c);
+int					ft_strlen(const char *s);
 
 #endif

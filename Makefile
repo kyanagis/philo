@@ -11,7 +11,14 @@ OBJDIR_B  := obj/bonus
 INCS := -I$(INCDIR)
 
 SRCS_M := \
-	$(MANDIR)/main.c
+	$(MANDIR)/main.c \
+	$(MANDIR)/init.c \
+	$(MANDIR)/time.c \
+	$(MANDIR)/utils.c \
+	$(MANDIR)/libft_utils.c \
+	$(MANDIR)/philos_init.c \
+	$(MANDIR)/run.c \
+
 
 SRCS_B := \
 
