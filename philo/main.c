@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kyanagis <kyanagis@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: kyanagis <kyanagis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/21 16:52:45 by kyanagis          #+#    #+#             */
-/*   Updated: 2025/09/21 17:58:49 by kyanagis         ###   ########.fr       */
+/*   Updated: 2025/10/07 10:42:33 by kyanagis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static int	philos_destroy(t_philo **philo, t_fork *forks, t_shared *box,
 	return (fail_cleanup_and_exit(forks, box, count, 2));
 }
 
-int	main(int argc, char **argv)
+static bool philosophers(int argc,char **argv)
 {
 	t_config	config;
 	t_philo		*philo;
@@ -86,4 +86,37 @@ int	main(int argc, char **argv)
 		return (philos_destroy(&philo, forks, &box, config.philo_count));
 	printf("%lld\n", box.start_ms);
 	return (EXIT_SUCCESS);
+
+
 }
+
+int main(int argc,char **argv)
+{
+	return philosophers(argc,argv);
+}
+
+
+// int	main(int argc, char **argv)
+// {
+	// t_config	config;
+	// t_philo		*philo;
+	// t_fork		*forks;
+	// t_shared	box;
+
+	// philo = NULL;
+	// if (!parse_config(argc, argv, &config))
+	// 	return (put_err_msg(ERR_USAGE));
+	// if (!validate_config(&config))
+	// 	return (put_err_msg(ERR_INIT));
+	// if (!forks_init(&forks, config.philo_count))
+	// 	return (put_err_msg(ERR_INIT));
+	// if (!shared_init(&box, &config))
+	// 	return (fail_cleanup_and_exit(forks, &box, config.philo_count, 1));
+	// box.start_ms = now_ms() + 50;
+	// if (!philos_init(&philo, &box, forks))
+	// 	return (fail_cleanup_and_exit(forks, &box, config.philo_count, 2));
+	// if (!philos_start(philo, &box))
+	// 	return (philos_destroy(&philo, forks, &box, config.philo_count));
+	// printf("%lld\n", box.start_ms);
+	// return (EXIT_SUCCESS);
+// }
