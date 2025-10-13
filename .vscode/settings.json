@@ -2,6 +2,7 @@
     "files.associations": {
         ".gdbinit": "gdb",
         "*.gdb": "gdb",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "history.h": "c"
     }
 }
