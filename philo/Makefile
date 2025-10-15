@@ -12,8 +12,9 @@ INCS := -I$(INCDIR)
 
 SRCS_M := \
 	$(MANDIR)/main.c \
-	$(MANDIR)/parse.c \
-	$(MANDIR)/validate.c \
+	$(MANDIR)/config.c \
+	$(MANDIR)/error.c \
+	$(MANDIR)/forks.c \
 	# $(MANDIR)/init.c \
 	# $(MANDIR)/time.c \
 	# $(MANDIR)/utils.c \

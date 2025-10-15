@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse.c                                            :+:      :+:    :+:   */
+/*   config.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kyanagis <kyanagis@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: kyanagis <kyanagis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/16 01:28:31 by kyanagis          #+#    #+#             */
-/*   Updated: 2025/10/16 01:44:14 by kyanagis         ###   ########.fr       */
+/*   Updated: 2025/10/16 03:44:58 by kyanagis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_isdigit(int c)
+static int	ft_isdigit(int c)
 {
 	return (0x30 <= c && c <= 0x39);
 }
 
-bool	parse_int(const char *s, int *out_value)
+static bool	parse_int(const char *s, int *out_value)
 {
 	long		value;
 	const char	*cursor;
@@ -64,5 +64,16 @@ bool	parse_config(int argc, char **argv, t_config *config)
 	}
 	else
 		config->must_eat = -1;
+	return (true);
+}
+
+bool	validate_config(const t_config *config)
+{
+	if (config->philo_count < 1)
+		return (false);
+	if (config->die_ms < 1 || config->eat_ms < 1 || config->sleep_ms < 1)
+		return (false);
+	if (!(config->must_eat == -1 || config->must_eat >= 1))
+		return (false);
 	return (true);
 }
