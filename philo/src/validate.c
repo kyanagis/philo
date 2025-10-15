@@ -1,41 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   validate.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyanagis <kyanagis@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/21 16:53:11 by kyanagis          #+#    #+#             */
-/*   Updated: 2025/09/21 16:59:26 by kyanagis         ###   ########.fr       */
+/*   Created: 2025/10/16 01:38:46 by kyanagis          #+#    #+#             */
+/*   Updated: 2025/10/16 01:41:54 by kyanagis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-bool	parse_pos_int(const char *s, int *out_value)
+bool	validate_config(const t_config *config)
 {
-	long		value;
-	const char	*cursor;
-
-	if (!s || !*s)
+	if (config->philo_count < 1)
 		return (false);
-	cursor = s;
-	while (*cursor == ' ' || (*cursor >= 9 && *cursor <= 13))
-		++cursor;
-	if (*cursor == '+')
-		++cursor;
-	if (!ft_isdigit(*cursor))
+	if (config->die_ms < 1 || config->eat_ms < 1 || config->sleep_ms < 1)
 		return (false);
-	value = 0;
-	while (ft_isdigit(*cursor))
-	{
-		if (value > (INT_MAX - (*cursor - '0')) / 10)
-			return (false);
-		value = value * 10 + (*cursor - '0');
-		++cursor;
-	}
-	if (*cursor != '\0' || value < 1)
+	if (!(config->must_eat == -1 || config->must_eat >= 1))
 		return (false);
-	*out_value = (int)value;
 	return (true);
 }
