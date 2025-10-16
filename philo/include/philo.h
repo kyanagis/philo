@@ -6,7 +6,7 @@
 /*   By: kyanagis <kyanagis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/16 00:53:36 by kyanagis          #+#    #+#             */
-/*   Updated: 2025/10/16 03:48:16 by kyanagis         ###   ########.fr       */
+/*   Updated: 2025/10/17 06:26:34 by kyanagis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,10 @@ typedef struct s_philo
 int					put_err_msg(const char *msg);
 size_t				ft_strlen(const char *msg);
 
+long long			now_ms(void);
+bool				shared_init(t_shared *box, t_config *config);
+bool				philos_init(t_philo **out_philo, t_shared *box,
+						t_fork *forks);
 bool				forks_init(t_fork **out_forks, int count);
 bool				parse_config(int argc, char **argv, t_config *config);
 bool				validate_config(const t_config *config);

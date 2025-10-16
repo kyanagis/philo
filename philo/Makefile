@@ -14,9 +14,11 @@ SRCS_M := \
 	$(MANDIR)/main.c \
 	$(MANDIR)/config.c \
 	$(MANDIR)/error.c \
-	$(MANDIR)/forks.c \
+	$(MANDIR)/time.c \
+	$(MANDIR)/init/forks_init.c \
+	$(MANDIR)/init/philos_init.c \
+	$(MANDIR)/init/shared_init.c\
 	# $(MANDIR)/init.c \
-	# $(MANDIR)/time.c \
 	# $(MANDIR)/utils.c \
 	# $(MANDIR)/libft_utils.c \
 	# $(MANDIR)/philos_init.c \
